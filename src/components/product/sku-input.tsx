@@ -41,15 +41,15 @@ export function SKUInput({
           role="combobox"
           aria-expanded={open}
           className={clsx(
-            "w-full justify-between hover:bg-background",
+            "w-full h-auto justify-between hover:bg-background",
             !value.length && "text-muted-foreground"
           )}
         >
           {value.length ? (
-            <span className="text-left space-x-1 w-[90%] overflow-auto scrollbar-hide">
+            <span className="inline-flex flex-wrap text-left gap-1 w-[90%] overflow-auto scrollbar-hide">
               {value.map((val) => (
                 <Badge key={val} variant={"secondary"}>
-                  {val}{" "}
+                  {val}
                   <span
                     role="button"
                     className="ml-1 text-sm opacity-70 hover:opacity-100"
