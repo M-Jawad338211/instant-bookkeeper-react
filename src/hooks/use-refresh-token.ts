@@ -4,7 +4,7 @@ import { useEffect } from "react";
 type RefreshTokenPayload = { refreshToken: string };
 type LoginResponse = { token: string; refreshToken: string };
 
-export function useAutoRefreshToken(intervalMs: number = 1 * 60 * 1000) {
+export function useAutoRefreshToken(intervalMs: number = 30 * 60 * 1000) {
   useEffect(() => {
     const id = setInterval(async () => {
       const storedRefresh = localStorage.getItem("refreshToken");

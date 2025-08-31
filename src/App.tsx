@@ -13,7 +13,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  useAutoRefreshToken(5000);
+  useAutoRefreshToken();
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
