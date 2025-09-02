@@ -15,6 +15,7 @@ import {
   getProducts,
   type ProductResponse,
   type ProductsParams,
+  type ProductsResponse,
 } from "./product.service";
 import { useSearchParams } from "react-router";
 
@@ -86,6 +87,39 @@ export function useCategories(
     queryKey: ["categories", params],
     initialPageParam: params,
     queryFn: ({ pageParam = params }) => getProductCategories(pageParam),
+    getNextPageParam: (lastPage, allPages) => {
+      const lastPageNumber = allPages.length;
+      const totalPages = Math.ceil(lastPage.totalItems / params.pageSize);
+
+      const hasMore = lastPageNumber < totalPages;
+
+      if (!hasMore) return undefined;
+
+      return {
+        ...params,
+        pageNumber: lastPageNumber + 1,
+      };
+    },
+  });
+}
+
+// ---------------------------
+// Infinite Product Hook
+// ---------------------------
+
+export function useInfiniteProducts(
+  params: FilterParams = { pageNumber: 1, pageSize: 10 }
+) {
+  return useInfiniteQuery<
+    ProductsResponse,
+    Error,
+    InfiniteData<ProductsResponse>,
+    [string, FilterParams],
+    FilterParams
+  >({
+    queryKey: ["infinite-products", params],
+    initialPageParam: params,
+    queryFn: ({ pageParam = params }) => getProducts(pageParam),
     getNextPageParam: (lastPage, allPages) => {
       const lastPageNumber = allPages.length;
       const totalPages = Math.ceil(lastPage.totalItems / params.pageSize);

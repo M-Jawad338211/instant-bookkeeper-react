@@ -70,7 +70,6 @@ export const AddProduct: React.FC<{
           <Label>Search existing products</Label>
           <div className="mt-1">
             <ProductCombobox
-              products={existingProducts}
               value={undefined}
               onValueChange={(id) => onOpenExisting?.(id)}
             />
