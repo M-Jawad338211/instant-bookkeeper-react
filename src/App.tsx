@@ -7,6 +7,7 @@ import Login from "./routes/login";
 import ProductsPage from "./routes/products";
 import ProfilePage from "./routes/profile";
 import { useAutoRefreshToken } from "./hooks/use-refresh-token";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false } },
@@ -27,6 +28,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Navigate to={"/login"} />} />
         </Routes>
+        <ReactQueryDevtools />
       </QueryClientProvider>
     </BrowserRouter>
   );

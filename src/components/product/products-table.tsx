@@ -59,8 +59,6 @@ export const ProductsTable: React.FC<{
     updateParam("pageNumber", page);
   };
 
-  console.log(pageSize);
-
   const { start, end } = getVisiblePages(pageNumber, totalPages);
 
   return (

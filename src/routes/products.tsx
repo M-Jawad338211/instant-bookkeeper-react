@@ -1,33 +1,14 @@
-"use client";
-/* =====================================================
- Main Page — Products only with filters + modals
-===================================================== */
-
+import ProductFilters from "@/components/common/product-filters";
 import { AddProduct } from "@/components/product/add-product";
 import { AssignProductsModal } from "@/components/product/assign-product";
 import { ProductsTable } from "@/components/product/products-table";
 import { ViewEditProduct } from "@/components/product/view-product";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  useBrands,
-  useCategories,
-  useProducts,
-} from "@/services/product-hooks";
+import { useProducts } from "@/services/product-hooks";
 import type { SKU } from "@/services/sku.service";
-import { Filter, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
-import { useDebounce } from "use-debounce";
+
 export default function ProductsPage() {
   const { data, isLoading, isError, error } = useProducts();
 
@@ -131,108 +112,5 @@ export default function ProductsPage() {
         }}
       />
     </div>
-  );
-}
-
-function ProductFilters() {
-  const { data: brandsData } = useBrands();
-  const { data: categoriesData } = useCategories();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const [searchValue, setSearchValue] = useState(
-    searchParams.get("searchTerm") || ""
-  );
-
-  const updateParam = (key: string, value: string | undefined) => {
-    const newParams = new URLSearchParams(searchParams);
-    if (!value) newParams.delete(key);
-    else newParams.set(key, value);
-
-    newParams.set("pageNumber", "1");
-    setSearchParams(newParams);
-  };
-
-  const [debouncedSearch] = useDebounce(searchValue, 500);
-
-  useEffect(() => {
-    updateParam("searchTerm", debouncedSearch || undefined);
-  }, [debouncedSearch]);
-
-  const brandId = searchParams.get("brandId") || "";
-  const categoryId = searchParams.get("productCategoryId") || "";
-
-  const brands = brandsData?.brands ?? [];
-  const categories = categoriesData?.productCategories ?? [];
-
-  return (
-    <Card className="rounded-2xl gap-0">
-      <CardHeader className="pb-0">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Filter className="size-4" /> Filters
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="px-6 grid grid-cols-12 gap-3">
-        <div className="col-span-12 md:col-span-5">
-          <Label className="mb-2">Search</Label>
-          <Input
-            placeholder="Search name, SKU, ASIN, UPC, brand, category"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
-        </div>
-        <div className="col-span-12 md:col-span-3">
-          <Label className="mb-2">Brand</Label>
-          <Select
-            key={`brand-${brandId || "all"}`}
-            disabled={!brands.length}
-            value={brandId || undefined}
-            onValueChange={(v) => updateParam("brandId", v)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="All brands" />
-            </SelectTrigger>
-            <SelectContent>
-              {brands.map((b) => (
-                <SelectItem key={b.id} value={String(b.id)}>
-                  {b.brandName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="col-span-12 md:col-span-3">
-          <Label className="mb-2">Category</Label>
-          <Select
-            key={`cat-${categoryId || "all"}`}
-            disabled={!categories.length}
-            value={categoryId || undefined}
-            onValueChange={(v) => updateParam("productCategoryId", v)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="All categories" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((c) => (
-                <SelectItem key={c.id} value={String(c.id)}>
-                  {c.categoryName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="col-span-12 md:col-span-1 flex items-end">
-          <Button
-            variant="secondary"
-            className="w-full"
-            onClick={() => {
-              setSearchParams({});
-              setSearchValue("");
-            }}
-          >
-            Clear
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

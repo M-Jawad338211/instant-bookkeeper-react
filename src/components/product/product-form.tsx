@@ -6,24 +6,18 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useBrands, useCategories } from "@/services/product-hooks";
 import type { ProductPayload } from "@/services/product.service";
+import type { SKU } from "@/services/sku.service";
 import { yupResolver } from "@hookform/resolvers/yup";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
+import { BrandSelect } from "../common/brand-selector";
+import { CategorySelect } from "../common/categories-selector";
 import { TagInput } from "../common/tag-input";
+import { Button } from "../ui/button";
+import { CreateSKUFormPopover } from "./create-sku-popover";
 import { SKUInput } from "./sku-input";
 import { productSchema } from "./validation";
-import { CreateSKUFormPopover } from "./create-sku-popover";
-import { Button } from "../ui/button";
-import type { SKU } from "@/services/sku.service";
 
 export type DefaultValues = ProductPayload; // May extend in future
 
@@ -33,16 +27,11 @@ export const ProductForm: React.FC<{
   presetSKU?: SKU;
   onSubmit: (payload: ProductPayload) => void;
 }> = ({ mode, defaultValues, presetSKU, onSubmit }) => {
-  const { data: brandsData } = useBrands();
-
-  const { data: categoriesData } = useCategories();
-
   const {
     control,
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<ProductPayload>({
     resolver: yupResolver(productSchema),
@@ -51,10 +40,6 @@ export const ProductForm: React.FC<{
       skus: presetSKU ? [presetSKU] : defaultValues?.skus,
     },
   });
-
-  const { productCategories } = categoriesData || {};
-  const { brands } = brandsData || {};
-  console.log(watch("skus"));
 
   return (
     <form
@@ -73,33 +58,17 @@ export const ProductForm: React.FC<{
 
       {/* Brand */}
       <div className="col-span-12 md:col-span-6">
-        <Label className="mb-2">Brand</Label>
         <Controller
           name="brandId"
           control={control}
           render={({ field }) => (
-            <Select
-              onValueChange={(val) => {
-                const selectedId = Number(val);
-                const selected = brands?.find((c) => c.id === selectedId);
-
-                field.onChange(selectedId);
-                setValue("brandName", selected?.brandName || "");
+            <BrandSelect
+              onChange={(brand) => {
+                field.onChange(brand?.id);
+                setValue("brandName", brand?.brandName || "");
               }}
               value={field.value ? String(field.value) : ""}
-              disabled={!categoriesData}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Brand" />
-              </SelectTrigger>
-              <SelectContent>
-                {brands?.map((cat) => (
-                  <SelectItem key={cat.id} value={String(cat.id)}>
-                    {cat.brandName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           )}
         />
         {errors.brandName && (
@@ -109,35 +78,17 @@ export const ProductForm: React.FC<{
 
       {/* Category */}
       <div className="col-span-12 md:col-span-6">
-        <Label className="mb-2">Category</Label>
         <Controller
           name="productCategoryId"
           control={control}
           render={({ field }) => (
-            <Select
-              onValueChange={(val) => {
-                const selectedId = Number(val);
-                const selected = productCategories?.find(
-                  (c) => c.id === selectedId
-                );
-
-                field.onChange(selectedId);
-                setValue("productCategoryName", selected?.categoryName || "");
+            <CategorySelect
+              onChange={(category) => {
+                field.onChange(category?.id);
+                setValue("productCategoryName", category?.categoryName || "");
               }}
               value={field.value ? String(field.value) : ""}
-              disabled={!categoriesData}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {productCategories?.map((cat) => (
-                  <SelectItem key={cat.id} value={String(cat.id)}>
-                    {cat.categoryName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           )}
         />
 

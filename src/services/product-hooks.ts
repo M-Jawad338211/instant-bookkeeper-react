@@ -1,6 +1,10 @@
 // src/hooks/queries.ts
 
-import { useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import {
   type BrandsResponse,
   type CategoriesResponse,
@@ -40,9 +44,29 @@ export function useProducts() {
 export function useBrands(
   params: FilterParams = { pageNumber: 1, pageSize: 10 }
 ) {
-  return useQuery<BrandsResponse>({
+  return useInfiniteQuery<
+    BrandsResponse,
+    Error,
+    InfiniteData<BrandsResponse>,
+    [string, FilterParams],
+    FilterParams
+  >({
     queryKey: ["brands", params],
-    queryFn: () => getBrands(params),
+    queryFn: ({ pageParam = params }) => getBrands(pageParam),
+    initialPageParam: params,
+    getNextPageParam: (lastPage, allPages) => {
+      const lastPageNumber = allPages.length;
+      const totalPages = Math.ceil(lastPage.totalItems / params.pageSize);
+
+      const hasMore = lastPageNumber < totalPages;
+
+      if (!hasMore) return undefined;
+
+      return {
+        ...params,
+        pageNumber: lastPageNumber + 1,
+      };
+    },
   });
 }
 
@@ -52,9 +76,29 @@ export function useBrands(
 export function useCategories(
   params: FilterParams = { pageNumber: 1, pageSize: 10 }
 ) {
-  return useQuery<CategoriesResponse>({
+  return useInfiniteQuery<
+    CategoriesResponse,
+    Error,
+    InfiniteData<CategoriesResponse>,
+    [string, FilterParams],
+    FilterParams
+  >({
     queryKey: ["categories", params],
-    queryFn: () => getProductCategories(params),
+    initialPageParam: params,
+    queryFn: ({ pageParam = params }) => getProductCategories(pageParam),
+    getNextPageParam: (lastPage, allPages) => {
+      const lastPageNumber = allPages.length;
+      const totalPages = Math.ceil(lastPage.totalItems / params.pageSize);
+
+      const hasMore = lastPageNumber < totalPages;
+
+      if (!hasMore) return undefined;
+
+      return {
+        ...params,
+        pageNumber: lastPageNumber + 1,
+      };
+    },
   });
 }
 
